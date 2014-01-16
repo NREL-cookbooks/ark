@@ -285,7 +285,7 @@ action :install_with_make do
   end
   
   execute "custom call #{new_resource.path}" do 
-    command "./#{new_resource.custom_call}"
+    command "#{new_resource.custom_call}"
     # run always only_if 
     cwd new_resource.path
     environment new_resource.environment
