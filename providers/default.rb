@@ -277,15 +277,15 @@ action :install_with_make do
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[autogen #{new_resource.path}]"
-    notifies :run, "execute[custom call #{new_resource.path}]"
+    notifies :run, "execute[preautogen call #{new_resource.path}]"
     notifies :run, "execute[configure #{new_resource.path}]"
     notifies :run, "execute[make #{new_resource.path}]"
     notifies :run, "execute[make install #{new_resource.path}]"
     action :nothing
   end
   
-  execute "custom call #{new_resource.path}" do 
-    command "#{new_resource.custom_call}"
+  execute "preautogen call #{new_resource.path}" do 
+    command "#{new_resource.preautogen_command}"
     # run always only_if 
     cwd new_resource.path
     environment new_resource.environment
