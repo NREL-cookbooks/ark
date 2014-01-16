@@ -2,6 +2,9 @@ ark Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the ark cookbook.
 
+v0.4.3
+------
+- Add custom call between autogen and configure for install_with_make
 
 v0.4.2
 ------
