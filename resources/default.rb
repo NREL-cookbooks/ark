@@ -21,7 +21,7 @@
 def initialize(name, run_context = nil)
   super
   @resource_name = :ark
-  @allowed_actions.push(:install, :dump, :cherry_pick, :put, :install_with_make, :configure, :setup_py_build, :setup_py_install, :setup_py, :unzip)
+  @allowed_actions.push(:install, :dump, :cherry_pick, :put, :install_with_make, :install_with_cmake, :configure, :setup_py_build, :setup_py_install, :setup_py, :unzip)
   @action = :install
   @provider = Chef::Provider::Ark
 end
@@ -46,8 +46,9 @@ attribute :prefix_bin, :kind_of => String, :default => nil
 attribute :version, :kind_of => String, :default => nil
 attribute :home_dir, :kind_of => String, :default => nil
 attribute :environment, :kind_of => Hash, :default => {}
-attribute :custom_call, :kind_of => String, :default => nil
+attribute :custom_call, :kind_of => String, :default => nil # NL added
 attribute :autoconf_opts, :kind_of => Array, :default => []
+attribute :cmake_opts, :kind_of => Array, :default => [] # NL added
 attribute :make_opts, :kind_of => Array, :default => []
 attribute :home_dir, :kind_of => String, :default => nil
 attribute :autoconf_opts, :kind_of => Array, :default => []

@@ -77,6 +77,9 @@ Actions
 - `:install_with_make`: extracts the archive to a path, runs `make`,
   and `make install`. It does _not_ run the configure step at this
   time
+- `:install_with_cmake`: extracts the archive to a path, runs `cmake`,
+  `make`, and `make install`. It does _not_ run the configure step at this
+  time  
 - `:dump`: strips all directories from the archive and dumps the
   contained files into a specified path
 - `:cherry_pick`: extract a specified file from an archive and places
@@ -265,6 +268,15 @@ Build and install haproxy and use alternave values for `prefix_root`, `prefix_ho
        prefix_home '/opt'
        prefix_bin  '/opt/bin'
        action :install_with_make
+     end
+
+Build and install OpenStudio using CMake:
+     ark "openstudio" do
+       url "http://path/to/source.tar.gz"
+       version "1.2.3"
+       prefix_root '/usr/local'
+       make_opts ["-j2"]
+       action :install_with_cmake
      end
 
 You can also pass multiple actions to ark and supply the file extension in case

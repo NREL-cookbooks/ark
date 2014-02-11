@@ -24,7 +24,7 @@ use_inline_resources if defined?(use_inline_resources)
 include ::Opscode::Ark::ProviderHelpers
 
 # From resources/default.rb
-# :install, :put, :dump, :cherry_pick, :install_with_make, :configure, :setup_py_build, :setup_py_install, :setup_py
+# :install, :put, :dump, :cherry_pick, :install_with_make, :configure, :setup_py_build, :setup_py_install, :setup_py, :install_with_cmake #NL
 #
 # Used in test.rb
 # :install, :put, :dump, :cherry_pick, :install_with_make, :configure
@@ -372,4 +372,70 @@ action :configure do
     environment new_resource.environment
     action :nothing
   end
+end
+
+###########################
+# action :install_with_cmake
+###########################
+action :install_with_cmake do
+  set_paths
+
+  directory new_resource.path do
+    recursive true
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  remote_file new_resource.release_file do
+    Chef::Log.debug('DEBUG: new_resource.release_file')
+    source new_resource.url
+    checksum new_resource.checksum if new_resource.checksum
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  # unpack based on file extension
+  _unpack_command = unpack_command
+  execute "unpack #{new_resource.release_file}" do
+    command _unpack_command
+    cwd new_resource.path
+    environment new_resource.environment
+    notifies :run, "execute[custom call #{new_resource.path}]"
+    notifies :run, "execute[cmake #{new_resource.path}]"
+    notifies :run, "execute[make #{new_resource.path}]"
+    notifies :run, "execute[make install #{new_resource.path}]"
+    action :nothing
+  end
+
+  execute "custom call #{new_resource.path}" do
+    command "./#{new_resource.custom_call}"
+    # run always only_if 
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+    ignore_failure true
+  end
+
+  execute "cmake #{new_resource.path}" do
+    command "cmake #{new_resource.cmake_opts.join(' ')}"
+    # run always only_if { ::File.exist? "#{new_resource.path}/CMakeLists.txt" }
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+  
+  execute "make #{new_resource.path}" do
+    command "make #{new_resource.make_opts.join(' ')}"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+
+  execute "make install #{new_resource.path}" do
+    command "make install #{new_resource.make_opts.join(' ')}"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+
 end
