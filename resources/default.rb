@@ -46,7 +46,8 @@ attribute :prefix_bin, :kind_of => String, :default => nil
 attribute :version, :kind_of => String, :default => nil
 attribute :home_dir, :kind_of => String, :default => nil
 attribute :environment, :kind_of => Hash, :default => {}
-attribute :custom_call, :kind_of => String, :default => nil # NL added
+attribute :precmake_call, :kind_of => String, :default => nil # NL added
+attribute :preautogen_command, :kind_of => String, :default => nil # NL added
 attribute :autoconf_opts, :kind_of => Array, :default => []
 attribute :cmake_opts, :kind_of => Array, :default => [] # NL added
 attribute :make_opts, :kind_of => Array, :default => []
