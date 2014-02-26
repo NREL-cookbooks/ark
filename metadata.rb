@@ -11,5 +11,3 @@ version          '0.5.1'
 end
 
 recipe 'ark::default', 'Installs and configures ark'
-
-depends "cmake"

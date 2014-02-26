@@ -2,9 +2,11 @@ ark Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the ark cookbook.
 
-v0.4.3
-------
-- Add custom call between autogen and configure for install_with_make
+v0.5.1 (2014-02-25)
+-------------------
+- Merge in upstream
+
+- Remove CMake cookbook dependency and install cmake in default
 
 v0.5.0 (2014-02-21)
 -------------------
@@ -14,6 +16,9 @@ v0.5.0 (2014-02-21)
 ### Improvement
 - **[COOK-4264](https://tickets.opscode.com/browse/COOK-4264)** - Add node['ark']['package_dependencies'] to allow tuning packages.
 
+v0.4.3
+------
+- Add custom call between autogen and configure for install_with_make
 
 v0.4.2
 ------

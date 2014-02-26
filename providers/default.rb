@@ -420,7 +420,7 @@ action :install_with_cmake do
   end
 
   execute "cmake #{new_resource.path}" do
-    command "cmake #{new_resource.cmake_opts.join(' ')}"
+    command "#{node['ark']['cmake_exe']} #{new_resource.cmake_opts.join(' ')}"
     # run always only_if { ::File.exist? "#{new_resource.path}/CMakeLists.txt" }
     cwd new_resource.path
     environment new_resource.environment
