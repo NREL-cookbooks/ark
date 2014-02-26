@@ -6,6 +6,15 @@ v0.4.3
 ------
 - Add custom call between autogen and configure for install_with_make
 
+v0.5.0 (2014-02-21)
+-------------------
+### Bug
+- **[COOK-4288](https://tickets.opscode.com/browse/COOK-4288)** - Cleanup the Kitchen
+
+### Improvement
+- **[COOK-4264](https://tickets.opscode.com/browse/COOK-4264)** - Add node['ark']['package_dependencies'] to allow tuning packages.
+
+
 v0.4.2
 ------
 ### Improvement

@@ -28,3 +28,7 @@ package 'autogen' unless platform_family?('rhel', 'fedora')
 package 'gtar' if platform?('freebsd')
 package 'cmake'
 #package 'cmake-curses-gui' 
+
+Array(node['ark']['package_dependencies']).each do |pkg|
+  package pkg
+end
