@@ -316,6 +316,7 @@ action :install_with_make do
     command "make #{new_resource.make_opts.join(' ')}"
     cwd new_resource.path
     environment new_resource.environment
+    timeout new_resource.make_timeout
     action :nothing
   end
 
@@ -431,6 +432,7 @@ action :install_with_cmake do
     command "make #{new_resource.make_opts.join(' ')}"
     cwd new_resource.path
     environment new_resource.environment
+    timeout new_resource.make_timeout
     action :nothing
   end
 

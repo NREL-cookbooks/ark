@@ -2,6 +2,10 @@ ark Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the ark cookbook.
 
+v0.5.2 (2014-02-25)
+-------------------
+- Add timeouts to make
+
 v0.5.1 (2014-02-25)
 -------------------
 - Merge in upstream

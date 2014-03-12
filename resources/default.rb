@@ -51,6 +51,6 @@ attribute :preautogen_command, :kind_of => String, :default => nil # NL added
 attribute :autoconf_opts, :kind_of => Array, :default => []
 attribute :cmake_opts, :kind_of => Array, :default => [] # NL added
 attribute :make_opts, :kind_of => Array, :default => []
-attribute :home_dir, :kind_of => String, :default => nil
+attribute :make_timeout, :kind_of => Integer, :default => 3600
 attribute :autoconf_opts, :kind_of => Array, :default => []
 attribute :extension, :kind_of => String
