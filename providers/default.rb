@@ -35,6 +35,7 @@ include ::Opscode::Ark::ProviderHelpers
 # action :install
 #################
 action :install do
+  show_deprecations
   set_paths
 
   directory new_resource.path do
@@ -105,6 +106,7 @@ end
 # action :put
 ##############
 action :put do
+  show_deprecations
   set_put_paths
 
   directory new_resource.path do
@@ -142,6 +144,7 @@ end
 # action :dump
 ###########################
 action :dump do
+  show_deprecations
   set_dump_paths
 
   directory new_resource.path do
@@ -180,6 +183,7 @@ end
 # action :unzip
 ###########################
 action :unzip do
+  show_deprecations
   set_dump_paths
 
   directory new_resource.path do
@@ -218,6 +222,7 @@ end
 # action :cherry_pick
 #####################
 action :cherry_pick do
+  show_deprecations
   set_dump_paths
   Chef::Log.debug("DEBUG: new_resource.creates #{new_resource.creates}")
 
@@ -256,6 +261,7 @@ end
 # action :install_with_make
 ###########################
 action :install_with_make do
+  show_deprecations
   set_paths
 
   directory new_resource.path do
@@ -278,6 +284,7 @@ action :install_with_make do
     command _unpack_command
     cwd new_resource.path
     environment new_resource.environment
+    notifies :run, "execute[set owner on #{new_resource.path}]"
     notifies :run, "execute[autogen #{new_resource.path}]"
     notifies :run, "execute[preautogen call #{new_resource.path}]"
     notifies :run, "execute[configure #{new_resource.path}]"
@@ -286,6 +293,12 @@ action :install_with_make do
     action :nothing
   end
 
+  execute "set owner on #{new_resource.path}" do
+    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    action :nothing
+  end
+
+  # set_owner
   execute "preautogen call #{new_resource.path}" do
     command "#{new_resource.preautogen_command}"
     # run always only_if 
@@ -332,6 +345,7 @@ action :install_with_make do
 end
 
 action :configure do
+  show_deprecations
   set_paths
 
   directory new_resource.path do
@@ -354,8 +368,15 @@ action :configure do
     command _unpack_command
     cwd new_resource.path
     environment new_resource.environment
+    notifies :run, "execute[set owner on #{new_resource.path}]"
     notifies :run, "execute[autogen #{new_resource.path}]"
     notifies :run, "execute[configure #{new_resource.path}]"
+    action :nothing
+  end
+
+  # set_owner
+  execute "set owner on #{new_resource.path}" do
+    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
     action :nothing
   end
 

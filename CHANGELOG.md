@@ -12,6 +12,22 @@ v0.5.1 (2014-02-25)
 
 - Remove CMake cookbook dependency and install cmake in default
 
+v0.7.2 (2014-03-28)
+-------------------
+- [COOK-4477] - Fix failing test suite
+- [COOK-4484] - Replace strip_leading_dir attribute with more general strip_components
+
+
+v0.7.0 (2014-03-18)
+-------------------
+- [COOK-4437] - configure and install_with_make should chown after unpack
+
+
+v0.6.0 (2014-02-27)
+-------------------
+[COOK-3786] - Unable to install multiple versions of archive without duplication
+
+
 v0.5.0 (2014-02-21)
 -------------------
 ### Bug
