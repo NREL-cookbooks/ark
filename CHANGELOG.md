@@ -12,6 +12,11 @@ v0.5.1 (2014-02-25)
 
 - Remove CMake cookbook dependency and install cmake in default
 
+v0.8.0 (2014-04-10)
+-------------------
+- [COOK-2771] - Add support for XZ compression
+
+
 v0.7.2 (2014-03-28)
 -------------------
 - [COOK-4477] - Fix failing test suite
