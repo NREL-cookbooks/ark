@@ -53,5 +53,6 @@ attribute :autoconf_opts, :kind_of => Array, :default => []
 attribute :cmake_opts, :kind_of => Array, :default => [] # NL added
 attribute :make_opts, :kind_of => Array, :default => []
 attribute :make_timeout, :kind_of => Integer, :default => 3600
+attribute :make_install_append_path, :kind_of => String, :default => '' # NL added
 attribute :autoconf_opts, :kind_of => Array, :default => []
 attribute :extension, :kind_of => String

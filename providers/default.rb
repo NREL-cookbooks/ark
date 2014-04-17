@@ -459,7 +459,7 @@ action :install_with_cmake do
 
   execute "make install #{new_resource.path}" do
     command "make install #{new_resource.make_opts.join(' ')}"
-    cwd new_resource.path
+    cwd [new_resource.path, new_resource.make_install_append_path].join("/")
     environment new_resource.environment
     action :nothing
   end
