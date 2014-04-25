@@ -2,6 +2,10 @@ ark Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the ark cookbook.
 
+v0.8.3 (NL - Added)
+-------------------
+- Add make package call with cmake
+
 v0.5.2 (2014-02-25)
 -------------------
 - Add timeouts to make

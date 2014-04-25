@@ -428,6 +428,7 @@ action :install_with_cmake do
     notifies :run, "execute[cmake #{new_resource.path}]"
     notifies :run, "execute[make #{new_resource.path}]"
     notifies :run, "execute[make install #{new_resource.path}]"
+    notifies :run, "execute[make package #{new_resource.path}]" if new_resource.make_package
     action :nothing
   end
 
@@ -463,5 +464,13 @@ action :install_with_cmake do
     environment new_resource.environment
     action :nothing
   end
+
+  execute "make package #{new_resource.path}" do
+    command "make package"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+
 
 end
