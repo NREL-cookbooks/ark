@@ -21,3 +21,5 @@
 Array(node['ark']['package_dependencies']).each do |pkg|
   package pkg
 end
+
+include_recipe "7-zip" if node['platform_family'] == 'windows'

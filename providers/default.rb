@@ -2,11 +2,12 @@
 # Cookbook Name:: ark
 # Provider:: Ark
 #
-# Author:: Bryan W. Berry <bryan.berry@gmail.com>
-# Author:: Sean OMeara <someara@opscode.com
+# Author:: Sean OMeara <someara@chef.io
+# Author:: John Bellone <jbellone@bloomberg.net>
 # Author:: Nicholas Long <nicholas.long@nrel.gov>
 # Copyright 2012, Bryan W. Berry
-# Copyright 2013, Opscode, Inc.
+# Copyright 2013, Chef Software, Inc.
+# Copyright 2014, Bloomberg L.P.
 # Copyright 2014, Alliance for Sustainable Energy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,13 +24,14 @@
 #
 
 use_inline_resources if defined?(use_inline_resources)
-include ::Opscode::Ark::ProviderHelpers
 
 # From resources/default.rb
 # :install, :put, :dump, :cherry_pick, :install_with_make, :configure, :setup_py_build, :setup_py_install, :setup_py, :install_with_cmake #NL
 #
 # Used in test.rb
 # :install, :put, :dump, :cherry_pick, :install_with_make, :configure
+
+include ::Ark::ProviderHelpers
 
 #################
 # action :install
@@ -53,9 +55,8 @@ action :install do
   end
 
   # unpack based on file extension
-  _unpack_command = unpack_command
   execute "unpack #{new_resource.release_file}" do
-    command _unpack_command
+    command unpack_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -64,32 +65,35 @@ action :install do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 
-  # symlink binaries
-  new_resource.has_binaries.each do |bin|
-    link ::File.join(new_resource.prefix_bin, ::File.basename(bin)) do
-      to ::File.join(new_resource.path, bin)
+  # usually on windows there is no central directory with executables where the applciations are linked
+  unless node['platform_family'] == 'windows'
+    # symlink binaries
+    new_resource.has_binaries.each do |bin|
+      link ::File.join(new_resource.prefix_bin, ::File.basename(bin)) do
+        to ::File.join(new_resource.path, bin)
+      end
     end
-  end
 
-  # action_link_paths
-  link new_resource.home_dir do
-    to new_resource.path
-  end
+    # action_link_paths
+    link new_resource.home_dir do
+      to new_resource.path
+    end
 
-  # Add to path for interactive bash sessions
-  template "/etc/profile.d/#{new_resource.name}.sh" do
-    cookbook 'ark'
-    source 'add_to_path.sh.erb'
-    owner 'root'
-    group 'root'
-    mode '0755'
-    cookbook 'ark'
-    variables(:directory => "#{new_resource.path}/bin")
-    only_if { new_resource.append_env_path }
+    # Add to path for interactive bash sessions
+    template "/etc/profile.d/#{new_resource.name}.sh" do
+      cookbook 'ark'
+      source 'add_to_path.sh.erb'
+      owner 'root'
+      group 'root'
+      mode '0755'
+      cookbook 'ark'
+      variables(directory: "#{new_resource.path}/bin")
+      only_if { new_resource.append_env_path }
+    end
   end
 
   # Add to path for the current chef-client converge.
@@ -98,7 +102,9 @@ action :install do
     block do
       ENV['PATH'] = bin_path + ':' + ENV['PATH']
     end
-    only_if { new_resource.append_env_path && ENV['PATH'].scan(bin_path).empty? }
+    only_if do
+      new_resource.append_env_path && ENV['PATH'].scan(bin_path).empty?
+    end
   end
 end
 
@@ -124,9 +130,8 @@ action :put do
   end
 
   # unpack based on file extension
-  _unpack_command = unpack_command
   execute "unpack #{new_resource.release_file}" do
-    command _unpack_command
+    command unpack_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -135,7 +140,7 @@ action :put do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 end
@@ -163,9 +168,8 @@ action :dump do
   end
 
   # unpack based on file extension
-  _dump_command = dump_command
   execute "unpack #{new_resource.release_file}" do
-    command _dump_command
+    command dump_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -174,7 +178,7 @@ action :dump do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 end
@@ -202,9 +206,8 @@ action :unzip do
   end
 
   # unpack based on file extension
-  _unzip_command = unzip_command
   execute "unpack #{new_resource.release_file}" do
-    command _unzip_command
+    command unzip_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -213,7 +216,7 @@ action :unzip do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 end
@@ -240,11 +243,8 @@ action :cherry_pick do
     notifies :run, "execute[cherry_pick #{new_resource.creates} from #{new_resource.release_file}]"
   end
 
-  _unpack_type = unpack_type
-  _cherry_pick_command = cherry_pick_command
   execute "cherry_pick #{new_resource.creates} from #{new_resource.release_file}" do
-    Chef::Log.debug("DEBUG: unpack_type: #{_unpack_type}")
-    command _cherry_pick_command
+    command cherry_pick_command
     creates "#{new_resource.path}/#{new_resource.creates}"
     notifies :run, "execute[set owner on #{new_resource.path}]"
     action :nothing
@@ -252,7 +252,7 @@ action :cherry_pick do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 end
@@ -279,9 +279,8 @@ action :install_with_make do
   end
 
   # unpack based on file extension
-  _unpack_command = unpack_command
   execute "unpack #{new_resource.release_file}" do
-    command _unpack_command
+    command unpack_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -294,7 +293,7 @@ action :install_with_make do
   end
 
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 
@@ -340,8 +339,132 @@ action :install_with_make do
     action :nothing
   end
 
-  # unless new_resource.creates and ::File.exists? new_resource.creates
-  # end
+end
+
+action :setup_py_build do
+  show_deprecations
+  set_paths
+
+  directory new_resource.path do
+    recursive true
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  remote_file new_resource.release_file do
+    Chef::Log.debug('DEBUG: new_resource.release_file')
+    source new_resource.url
+    checksum new_resource.checksum if new_resource.checksum
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  # unpack based on file extension
+  execute "unpack #{new_resource.release_file}" do
+    command unpack_command
+    cwd new_resource.path
+    environment new_resource.environment
+    notifies :run, "execute[set owner on #{new_resource.path}]"
+    notifies :run, "execute[python setup.py build #{new_resource.path}]"
+    action :nothing
+  end
+
+  # set_owner
+  execute "set owner on #{new_resource.path}" do
+    command owner_command
+    action :nothing
+  end
+
+  execute "python setup.py build #{new_resource.path}" do
+    command "python setup.py build #{new_resource.make_opts.join(' ')}"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+end
+
+action :setup_py_install do
+  show_deprecations
+  set_paths
+
+  directory new_resource.path do
+    recursive true
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  remote_file new_resource.release_file do
+    Chef::Log.debug('DEBUG: new_resource.release_file')
+    source new_resource.url
+    checksum new_resource.checksum if new_resource.checksum
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  # unpack based on file extension
+  execute "unpack #{new_resource.release_file}" do
+    command unpack_command
+    cwd new_resource.path
+    environment new_resource.environment
+    notifies :run, "execute[set owner on #{new_resource.path}]"
+    notifies :run, "execute[python setup.py install #{new_resource.path}]"
+    action :nothing
+  end
+
+  # set_owner
+  execute "set owner on #{new_resource.path}" do
+    command owner_command
+    action :nothing
+  end
+
+  execute "python setup.py install #{new_resource.path}" do
+    command "python setup.py install #{new_resource.make_opts.join(' ')}"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
+end
+
+action :setup_py do
+  show_deprecations
+  set_paths
+
+  directory new_resource.path do
+    recursive true
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  remote_file new_resource.release_file do
+    Chef::Log.debug('DEBUG: new_resource.release_file')
+    source new_resource.url
+    checksum new_resource.checksum if new_resource.checksum
+    action :create
+    notifies :run, "execute[unpack #{new_resource.release_file}]"
+  end
+
+  # unpack based on file extension
+  execute "unpack #{new_resource.release_file}" do
+    command unpack_command
+    cwd new_resource.path
+    environment new_resource.environment
+    notifies :run, "execute[set owner on #{new_resource.path}]"
+    notifies :run, "execute[python setup.py #{new_resource.path}]"
+    action :nothing
+  end
+
+  # set_owner
+  execute "set owner on #{new_resource.path}" do
+    command owner_command
+    action :nothing
+  end
+
+  execute "python setup.py #{new_resource.path}" do
+    command "python setup.py #{new_resource.make_opts.join(' ')}"
+    cwd new_resource.path
+    environment new_resource.environment
+    action :nothing
+  end
 end
 
 action :configure do
@@ -363,9 +486,8 @@ action :configure do
   end
 
   # unpack based on file extension
-  _unpack_command = unpack_command
   execute "unpack #{new_resource.release_file}" do
-    command _unpack_command
+    command unpack_command
     cwd new_resource.path
     environment new_resource.environment
     notifies :run, "execute[set owner on #{new_resource.path}]"
@@ -376,7 +498,7 @@ action :configure do
 
   # set_owner
   execute "set owner on #{new_resource.path}" do
-    command "chown -R #{new_resource.owner}:#{new_resource.group} #{new_resource.path}"
+    command owner_command
     action :nothing
   end
 

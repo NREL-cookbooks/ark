@@ -1,9 +1,15 @@
-source "http://api.berkshelf.com"
+source "https://supermarket.chef.io"
 
 metadata
+
+cookbook '7-zip'
+cookbook 'windows'
 
 group :integration do
   cookbook 'apt'
   cookbook 'minitest-handler'
   cookbook 'build-essential'
 end
+
+
+cookbook "ark_spec", path: "spec/fixtures/cookbooks/ark_spec"
