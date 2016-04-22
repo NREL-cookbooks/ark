@@ -11,14 +11,14 @@ end
 pkgs = %w(libtool autoconf) unless platform_family?('mac_os_x', 'windows')
 pkgs += %w(unzip rsync make gcc) unless platform_family?('mac_os_x', 'windows')
 pkgs += %w(autogen cmake) unless platform_family?('rhel', 'fedora', 'mac_os_x', 'suse', 'windows')
-pkgs += %w(cmake28) if platform_family?('rhel', 'fedora')
+pkgs += %w(cmake) if platform_family?('rhel', 'fedora')
 pkgs += %w(gtar) if platform?('freebsd')
 pkgs += %w(xz-lzma-compat) if platform?('centos')
 
 default['ark']['package_dependencies'] = pkgs
 
 if platform_family?('rhel', 'fedora')
-  default['ark']['cmake_exe'] = 'cmake28'
+  default['ark']['cmake_exe'] = 'cmake'
 else
   default['ark']['cmake_exe'] = 'cmake'
 end
